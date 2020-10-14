@@ -11,8 +11,7 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 30
 
     signingConfigs {
         debug {
