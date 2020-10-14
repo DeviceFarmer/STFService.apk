@@ -1,5 +1,6 @@
 package jp.co.cyberagent.stf.query;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.PowerManager;
 import android.util.Log;
@@ -45,7 +46,7 @@ public class SetWakeLockResponder extends AbstractResponder {
         releaseWakeLock();
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressLint("WakelockTimeout")
     private void acquireWakeLock() {
         releaseWakeLock();
         Log.i(TAG, "Acquiring wake lock");
