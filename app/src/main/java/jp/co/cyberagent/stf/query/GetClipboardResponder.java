@@ -1,8 +1,8 @@
 package jp.co.cyberagent.stf.query;
 
 import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
+import android.os.Build;
 
 import com.google.protobuf.GeneratedMessageLite;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -26,14 +26,14 @@ public class GetClipboardResponder extends AbstractResponder {
 
                 if (text == null) {
                     return Wire.Envelope.newBuilder()
-                            .setId(envelope.getId())
-                            .setType(Wire.MessageType.GET_CLIPBOARD)
-                            .setMessage(Wire.GetClipboardResponse.newBuilder()
-                                    .setSuccess(true)
-                                    .setType(Wire.ClipboardType.TEXT)
-                                    .build()
-                                    .toByteString())
-                            .build();
+                        .setId(envelope.getId())
+                        .setType(Wire.MessageType.GET_CLIPBOARD)
+                        .setMessage(Wire.GetClipboardResponse.newBuilder()
+                                .setSuccess(true)
+                                .setType(Wire.ClipboardType.TEXT)
+                                .build()
+                                .toByteString())
+                        .build();
                 }
 
                 return Wire.Envelope.newBuilder()
@@ -51,9 +51,9 @@ public class GetClipboardResponder extends AbstractResponder {
                         .setId(envelope.getId())
                         .setType(Wire.MessageType.GET_CLIPBOARD)
                         .setMessage(Wire.GetClipboardResponse.newBuilder()
-                                .setSuccess(false)
-                                .build()
-                                .toByteString())
+                            .setSuccess(false)
+                            .build()
+                            .toByteString())
                         .build();
         }
     }
@@ -64,17 +64,26 @@ public class GetClipboardResponder extends AbstractResponder {
     }
 
     private CharSequence getClipboardText() {
-        ClipboardManager clipboardManager = (ClipboardManager) Service.getClipboardManager();
-        if (clipboardManager.hasPrimaryClip()) {
-            ClipData clipData = clipboardManager.getPrimaryClip();
-            if (clipData.getItemCount() > 0) {
-                ClipData.Item clip = clipData.getItemAt(0);
-                return clip.coerceToText(context.getApplicationContext());
-            } else {
+        if (Build.VERSION.SDK_INT >= 11) {
+            android.content.ClipboardManager clipboardManager =
+                    (android.content.ClipboardManager) Service.getClipboardManager();
+            if (clipboardManager.hasPrimaryClip()) {
+                ClipData clipData = clipboardManager.getPrimaryClip();
+                if (clipData.getItemCount() > 0) {
+                    ClipData.Item clip = clipData.getItemAt(0);
+                    return clip.coerceToText(context.getApplicationContext());
+                }
+                else {
+                    return null;
+                }
+            }
+            else {
                 return null;
             }
-        } else {
-            return null;
+        }
+        else {
+            return ((android.text.ClipboardManager) Service.getClipboardManager())
+                    .getText();
         }
     }
 }

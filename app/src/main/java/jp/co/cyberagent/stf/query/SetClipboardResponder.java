@@ -1,8 +1,8 @@
 package jp.co.cyberagent.stf.query;
 
 import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
+import android.os.Build;
 
 import com.google.protobuf.GeneratedMessageLite;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -49,7 +49,13 @@ public class SetClipboardResponder extends AbstractResponder {
     }
 
     private void setClipboardText(String content) {
-        ((ClipboardManager) Service.getClipboardManager())
-                .setPrimaryClip(ClipData.newPlainText(null, content));
+        if (Build.VERSION.SDK_INT >= 11) {
+            ((android.content.ClipboardManager) Service.getClipboardManager())
+                    .setPrimaryClip(ClipData.newPlainText(null, content));
+        }
+        else {
+            ((android.text.ClipboardManager) Service.getClipboardManager())
+                    .setText(content);
+        }
     }
 }

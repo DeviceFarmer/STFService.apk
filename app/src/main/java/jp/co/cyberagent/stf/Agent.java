@@ -3,6 +3,7 @@ package jp.co.cyberagent.stf;
 import android.graphics.Point;
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -234,7 +235,7 @@ public class Agent extends Thread {
                             handleSetRotationRequest(envelope);
                             break;
                         default:
-                            System.err.printf("Unknown request type %d; maybe it's a Service call?\n", envelope.getType().getNumber());
+                            System.err.printf("Unknown request type %d; maybe it's a Service call?\n", envelope.getType());
                     }
                 }
             }
