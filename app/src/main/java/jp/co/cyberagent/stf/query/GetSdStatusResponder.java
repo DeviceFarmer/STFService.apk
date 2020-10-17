@@ -1,8 +1,15 @@
 package jp.co.cyberagent.stf.query;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Environment;
+import android.telephony.TelephonyManager;
+import android.view.Gravity;
+import android.view.Window;
+import android.widget.LinearLayout;
 
 import com.google.protobuf.GeneratedMessageLite;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -13,6 +20,10 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import jp.co.cyberagent.stf.proto.Wire;
+import jp.co.cyberagent.stf.util.BrowserUtil;
+import jp.co.cyberagent.stf.util.NetworkUtil;
 
 public class GetSdStatusResponder extends AbstractResponder {
     public GetSdStatusResponder(Context context) {
@@ -48,8 +59,10 @@ public class GetSdStatusResponder extends AbstractResponder {
                 }
             }
 
-            if (!Environment.isExternalStorageRemovable()) {
-                mountList.remove(Environment.getExternalStorageDirectory().getPath());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                if (!Environment.isExternalStorageRemovable()) {
+                    mountList.remove(Environment.getExternalStorageDirectory().getPath());
+                }
             }
 
             for (int i = 0; i < mountList.size(); i++) {

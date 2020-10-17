@@ -3,6 +3,7 @@ package jp.co.cyberagent.stf.query;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
+import android.util.Log;
 
 import com.google.protobuf.GeneratedMessageLite;
 import com.google.protobuf.InvalidProtocolBufferException;

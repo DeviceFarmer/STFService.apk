@@ -8,6 +8,8 @@ import android.net.Uri;
 
 import java.util.List;
 
+import jp.co.cyberagent.stf.R;
+
 public class BrowserUtil {
     public static List<ResolveInfo> getBrowsers(Context context) {
         PackageManager pm = context.getPackageManager();
