@@ -11,8 +11,7 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 30
 
     signingConfigs {
         debug {
@@ -26,8 +25,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 29
-        versionCode 8
-        versionName "2.4.4"
+        versionCode 9
+        versionName "2.4.5"
         applicationId "jp.co.cyberagent.stf"
     }
 
@@ -52,8 +51,6 @@ dependencies {
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.google.protobuf:protobuf-lite:3.0.1'
-    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-    compileOnly fileTree(dir: 'provided', include: ['*.jar'])
     compileOnly fileTree(dir: '../shim/libs', include: ['*.jar'])
 }
 
