@@ -13,6 +13,7 @@ import java.util.List;
 
 import jp.co.cyberagent.stf.proto.Wire;
 import jp.co.cyberagent.stf.util.BrowserUtil;
+import jp.co.cyberagent.stf.util.GraphicUtil;
 
 public class GetBrowsersResponder extends AbstractResponder {
     public GetBrowsersResponder(Context context) {
