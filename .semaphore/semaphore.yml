@@ -20,4 +20,4 @@ blocks:
             - checkout
             - sem-version java 1.8
             - ./gradlew build
-            - artifact push app/build/outputs/apk/release/app-release.apk
+            - artifact push job app/build/outputs/apk/release/app-release.apk
