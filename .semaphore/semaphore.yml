@@ -14,9 +14,10 @@ blocks:
             - mkdir -p ~/android-sdk/cmdline-tools/
             - unzip ~/android-commandline-tools.zip -d ~/android-sdk/cmdline-tools
             - 'export PATH=$PATH:~/android-sdk/cmdline-tools/tools/bin'
-            - yes | sdkmanager "ndk;21.3.6528147"
-            - 'export PATH=$PATH:~/android-sdk/ndk/21.3.6528147/'
+            - yes | sdkmanager "ndk;21.4.7075529"
+            - 'export PATH=$PATH:~/android-sdk/ndk/21.4.7075529/'
             - export ANDROID_SDK_ROOT=~/android-sdk
             - checkout
             - sem-version java 1.8
             - ./gradlew build
+            - artifact push app/build/outputs/apk/release/app-release.apk
