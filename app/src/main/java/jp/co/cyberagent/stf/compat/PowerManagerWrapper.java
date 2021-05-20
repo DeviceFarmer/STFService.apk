@@ -22,8 +22,13 @@ public class PowerManagerWrapper {
                 wakeInjector = new WakeUpWakeInjector();
             }
             catch (UnsupportedOperationException e2) {
-                // Let it bubble
-                wakeInjector = new OldUserActivityWakeInjector();
+                try {
+                    wakeInjector = new WakeUpWithReasonWakeInjector();
+                }
+                catch(UnsupportedOperationException e3) {
+                    // Let it bubble
+                    wakeInjector = new OldUserActivityWakeInjector();
+                }
             }
         }
     }
@@ -69,6 +74,39 @@ public class PowerManagerWrapper {
         }
     }
 
+    /**
+     * WakeInjector using wakeUp with a reason parameter.
+     * Used on Pixel4 running Android 12 for example
+     */
+    private class WakeUpWithReasonWakeInjector implements WakeInjector {
+        private Method injector;
+
+        public WakeUpWithReasonWakeInjector() {
+            try {
+                injector = powerManager.getClass()
+                    .getMethod("wakeUp", long.class, int.class, String.class, String.class);
+            }
+            catch (NoSuchMethodException e) {
+                throw new UnsupportedOperationException("WakeUpWithReasonWakeInjector is not supported");
+            }
+        }
+
+        public boolean wakeUp() {
+            try {
+                int WAKE_REASON_UNKNOWN = 0;
+                injector.invoke(powerManager, SystemClock.uptimeMillis(), WAKE_REASON_UNKNOWN, "stf", "stf");
+                return true;
+            }
+            catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return false;
+            }
+            catch (InvocationTargetException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    }
 
     /**
      * WakeInjector for newer API using userActivity()
@@ -118,7 +156,7 @@ public class PowerManagerWrapper {
                         .getMethod("userActivityWithForce", long.class, boolean.class, boolean.class);
             }
             catch (NoSuchMethodException e) {
-                throw new UnsupportedOperationException("UserActivityWakeInjector is not supported");
+                throw new UnsupportedOperationException("OldUserActivityWakeInjector is not supported");
             }
         }
 
