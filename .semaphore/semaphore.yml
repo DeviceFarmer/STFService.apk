@@ -10,14 +10,14 @@ blocks:
       jobs:
         - name: Build
           commands:
-            - 'wget https://dl.google.com/android/repository/commandlinetools-linux-6514223_latest.zip -O ~/android-commandline-tools.zip '
+            - 'wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O ~/android-commandline-tools.zip '
             - mkdir -p ~/android-sdk/cmdline-tools/
             - unzip ~/android-commandline-tools.zip -d ~/android-sdk/cmdline-tools
             - 'export PATH=$PATH:~/android-sdk/cmdline-tools/tools/bin'
-            - yes | sdkmanager "ndk;21.4.7075529"
-            - 'export PATH=$PATH:~/android-sdk/ndk/21.4.7075529/'
+            - yes | sdkmanager "ndk;23.0.7599858"
+            - 'export PATH=$PATH:~/android-sdk/ndk/23.0.7599858/'
             - export ANDROID_SDK_ROOT=~/android-sdk
             - checkout
-            - sem-version java 1.8
+            - sem-version java 11
             - ./gradlew build
             - artifact push job app/build/outputs/apk/release/app-release.apk
