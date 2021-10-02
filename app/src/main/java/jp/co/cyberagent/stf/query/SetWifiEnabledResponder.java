@@ -18,7 +18,7 @@ public class SetWifiEnabledResponder extends AbstractResponder {
         Wire.SetWifiEnabledRequest request =
                 Wire.SetWifiEnabledRequest.parseFrom(envelope.getMessage());
 
-        WifiManager wm = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wm = (WifiManager)context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         wm.setWifiEnabled(request.getEnabled());
 

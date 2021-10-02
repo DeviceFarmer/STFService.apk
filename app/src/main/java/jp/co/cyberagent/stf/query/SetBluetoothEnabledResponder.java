@@ -26,13 +26,16 @@ public class SetBluetoothEnabledResponder extends AbstractResponder {
             if (bm != null) {
                 BluetoothAdapter ba = bm.getAdapter();
                 if (ba != null) {
-                    if (request.getEnabled()) {
-                        ba.enable();
+                    try {
+                        if (request.getEnabled()) {
+                            ba.enable();
+                        } else {
+                            ba.disable();
+                        }
+                        successful = true;
+                    } catch (SecurityException exception) {
+                        successful = false;
                     }
-                    else {
-                        ba.disable();
-                    }
-                    successful = true;
                 }
                 // No Bluetooth available
                 else {
