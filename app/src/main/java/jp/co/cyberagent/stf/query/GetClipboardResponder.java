@@ -64,26 +64,20 @@ public class GetClipboardResponder extends AbstractResponder {
     }
 
     private CharSequence getClipboardText() {
-        if (Build.VERSION.SDK_INT >= 11) {
-            android.content.ClipboardManager clipboardManager =
-                    (android.content.ClipboardManager) Service.getClipboardManager();
-            if (clipboardManager.hasPrimaryClip()) {
-                ClipData clipData = clipboardManager.getPrimaryClip();
-                if (clipData.getItemCount() > 0) {
-                    ClipData.Item clip = clipData.getItemAt(0);
-                    return clip.coerceToText(context.getApplicationContext());
-                }
-                else {
-                    return null;
-                }
+        android.content.ClipboardManager clipboardManager =
+                (android.content.ClipboardManager) Service.getClipboardManager();
+        if (clipboardManager.hasPrimaryClip()) {
+            ClipData clipData = clipboardManager.getPrimaryClip();
+            if (clipData.getItemCount() > 0) {
+                ClipData.Item clip = clipData.getItemAt(0);
+                return clip.coerceToText(context.getApplicationContext());
             }
             else {
                 return null;
             }
         }
         else {
-            return ((android.text.ClipboardManager) Service.getClipboardManager())
-                    .getText();
+            return null;
         }
     }
 }

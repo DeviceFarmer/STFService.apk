@@ -46,6 +46,7 @@ import jp.co.cyberagent.stf.query.DoAddAccountMenuResponder;
 import jp.co.cyberagent.stf.query.DoIdentifyResponder;
 import jp.co.cyberagent.stf.query.DoRemoveAccountResponder;
 import jp.co.cyberagent.stf.query.GetAccountsResponder;
+import jp.co.cyberagent.stf.query.GetBluetoothStatusResponder;
 import jp.co.cyberagent.stf.query.GetBrowsersResponder;
 import jp.co.cyberagent.stf.query.GetClipboardResponder;
 import jp.co.cyberagent.stf.query.GetDisplayResponder;
@@ -55,14 +56,13 @@ import jp.co.cyberagent.stf.query.GetRootStatusResponder;
 import jp.co.cyberagent.stf.query.GetSdStatusResponder;
 import jp.co.cyberagent.stf.query.GetVersionResponder;
 import jp.co.cyberagent.stf.query.GetWifiStatusResponder;
-import jp.co.cyberagent.stf.query.GetBluetoothStatusResponder;
+import jp.co.cyberagent.stf.query.SetBluetoothEnabledResponder;
 import jp.co.cyberagent.stf.query.SetClipboardResponder;
 import jp.co.cyberagent.stf.query.SetKeyguardStateResponder;
 import jp.co.cyberagent.stf.query.SetMasterMuteResponder;
 import jp.co.cyberagent.stf.query.SetRingerModeResponder;
 import jp.co.cyberagent.stf.query.SetWakeLockResponder;
 import jp.co.cyberagent.stf.query.SetWifiEnabledResponder;
-import jp.co.cyberagent.stf.query.SetBluetoothEnabledResponder;
 
 public class Service extends android.app.Service {
     public static final String ACTION_START = "jp.co.cyberagent.stf.ACTION_START";
@@ -72,6 +72,7 @@ public class Service extends android.app.Service {
 
     private static final String TAG = "STFService";
     private static final int NOTIFICATION_ID = 0x1;
+    private static final int PENDING_INTENT_FLAG = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
 
     private List<AbstractMonitor> monitors = new ArrayList<AbstractMonitor>();
     private ExecutorService executor = Executors.newCachedThreadPool();
@@ -122,7 +123,7 @@ public class Service extends android.app.Service {
                 .setTicker(getString(R.string.service_ticker))
                 .setContentTitle(getString(R.string.service_title))
                 .setContentText(getString(R.string.service_text))
-                .setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, 0))
+                .setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, PENDING_INTENT_FLAG))
                 .setWhen(System.currentTimeMillis())
                 .build();
 
