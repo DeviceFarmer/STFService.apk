@@ -45,7 +45,6 @@ public class SetWakeLockResponder extends AbstractResponder {
         releaseWakeLock();
     }
 
-    @SuppressWarnings("deprecation")
     private void acquireWakeLock() {
         releaseWakeLock();
         Log.i(TAG, "Acquiring wake lock");

@@ -49,13 +49,7 @@ public class SetClipboardResponder extends AbstractResponder {
     }
 
     private void setClipboardText(String content) {
-        if (Build.VERSION.SDK_INT >= 11) {
-            ((android.content.ClipboardManager) Service.getClipboardManager())
-                    .setPrimaryClip(ClipData.newPlainText(null, content));
-        }
-        else {
-            ((android.text.ClipboardManager) Service.getClipboardManager())
-                    .setText(content);
-        }
+        ((android.content.ClipboardManager) Service.getClipboardManager())
+                .setPrimaryClip(ClipData.newPlainText(null, content));
     }
 }
