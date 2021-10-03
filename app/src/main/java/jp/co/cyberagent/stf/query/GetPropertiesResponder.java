@@ -1,5 +1,6 @@
 package jp.co.cyberagent.stf.query;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.telephony.TelephonyManager;
@@ -21,6 +22,7 @@ public class GetPropertiesResponder extends AbstractResponder {
         super(context);
     }
 
+    @SuppressLint("MissingPermission") //fall back to nulls on newer Android versions
     @Override
     public GeneratedMessageLite respond(Wire.Envelope envelope) throws InvalidProtocolBufferException {
         Wire.GetPropertiesRequest request =
