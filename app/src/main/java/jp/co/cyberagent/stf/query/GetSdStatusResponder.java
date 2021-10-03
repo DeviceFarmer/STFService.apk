@@ -59,10 +59,8 @@ public class GetSdStatusResponder extends AbstractResponder {
                 }
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                if (!Environment.isExternalStorageRemovable()) {
-                    mountList.remove(Environment.getExternalStorageDirectory().getPath());
-                }
+            if (!Environment.isExternalStorageRemovable()) {
+                mountList.remove(Environment.getExternalStorageDirectory().getPath());
             }
 
             for (int i = 0; i < mountList.size(); i++) {

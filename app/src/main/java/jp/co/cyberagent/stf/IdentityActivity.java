@@ -1,5 +1,6 @@
 package jp.co.cyberagent.stf;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -40,6 +41,7 @@ public class IdentityActivity extends Activity {
         }
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,11 +78,10 @@ public class IdentityActivity extends Activity {
         layout.addView(createData(tm.getSimOperatorName()));
         layout.addView(createLabel("PHONE"));
         layout.addView(createData(getSecuredId(tm::getLine1Number)));
-        layout.addView(createLabel("IMEI"));
-        layout.addView(createData(getSecuredId(tm::getLine1Number)));
-        layout.addView(createLabel("ICCID"));
-        layout.addView(createData(getSecuredId(tm::getLine1Number)));
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            layout.addView(createLabel("IMEI"));
+            layout.addView(createData(getSecuredId(tm::getImei)));
+        }
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         ensureVisibility();
