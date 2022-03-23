@@ -255,7 +255,7 @@ public class MinitouchAgent extends Thread {
                             int delayMs = scanner.nextInt();
                             Thread.sleep(delayMs);
                             break;
-                        case "r":
+                        case "q":
                             hasStop = true;
                             break;
                         default:
