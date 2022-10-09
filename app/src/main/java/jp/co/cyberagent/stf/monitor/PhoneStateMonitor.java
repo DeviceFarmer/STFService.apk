@@ -65,21 +65,30 @@ public class PhoneStateMonitor extends AbstractMonitor {
         Log.i(TAG, String.format("Phone state is %s; %s; %s",
                 stateLabel(state.getState()),
                 state.getIsManualSelection() ? "manual" : "automatic",
-                state.getOperatorAlphaLong() == null ? "no operator" : "operator " + state.getOperatorAlphaLong()
+                getOperatorAlphaLong(state) == null ? "no operator" : "operator " + getOperatorAlphaLong(state)
         ));
 
         Wire.PhoneStateEvent.Builder message = Wire.PhoneStateEvent.newBuilder()
                 .setState(stateLabel(state.getState()))
                 .setManual(state.getIsManualSelection());
 
-        if (state.getOperatorAlphaLong() != null) {
-            message.setOperator(state.getOperatorAlphaLong());
+        if (getOperatorAlphaLong(state) != null) {
+            message.setOperator(getOperatorAlphaLong(state));
         }
 
         writer.write(Wire.Envelope.newBuilder()
                 .setType(Wire.MessageType.EVENT_PHONE_STATE)
                 .setMessage(message.build().toByteString())
                 .build());
+    }
+
+    private static String getOperatorAlphaLong(ServiceState state) {
+        try {
+            return state.getOperatorAlphaLong();
+        }
+        catch (SecurityException e){
+            return null;
+        }
     }
 
     private String stateLabel(int state) {
