@@ -24,7 +24,6 @@ android {
 
     defaultConfig {
         minSdkVersion 16
-        //noinspection ExpiringTargetSdkVersion
         targetSdkVersion 30
         versionCode 11
         versionName "2.4.9"
@@ -41,10 +40,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
-  compileOptions {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
-  }
+
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+
+    lintOptions {
+        informational 'ExpiredTargetSdkVersion'
+    }
 }
 
 dependencies {
@@ -67,7 +71,7 @@ protobuf {
     generateProtoTasks {
         all().each { task ->
             task.plugins {
-                javalite { }
+                javalite {}
             }
         }
     }
