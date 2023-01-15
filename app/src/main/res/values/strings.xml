@@ -3,4 +3,5 @@
     <string name="service_ticker">STFService running</string>
     <string name="service_title">STFService</string>
     <string name="service_text">STFService is running.</string>
+    <string name="clipboard_text">Refresh clipboard.</string>
 </resources>

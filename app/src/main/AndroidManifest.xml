@@ -20,6 +20,9 @@
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.READ_LOGS"
+      tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
   <queries>
     <intent>
@@ -44,6 +47,18 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </service>
+
+        <activity android:name=".ClipboardMonitorActivity"
+          android:exported="true"
+          android:finishOnTaskLaunch="true"
+          android:noHistory="true"
+          android:stateNotNeeded="true"
+          android:excludeFromRecents="true">
+          <intent-filter>
+            <action android:name="jp.co.cyberagent.stf.ACTION_IDENTIFY"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+          </intent-filter>
+        </activity>
 
         <activity android:name=".IdentityActivity"
             android:exported="true"
