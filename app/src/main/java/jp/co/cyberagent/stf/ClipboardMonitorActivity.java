@@ -19,7 +19,7 @@ public class ClipboardMonitorActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            ClipboardListener.instance(this).onClipboardChanged();
+            ClipboardListener.getInstance(this).onClipboardChanged();
             finish();
         }
     }

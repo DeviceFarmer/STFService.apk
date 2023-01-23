@@ -49,15 +49,8 @@
         </service>
 
         <activity android:name=".ClipboardMonitorActivity"
-          android:exported="true"
-          android:finishOnTaskLaunch="true"
-          android:noHistory="true"
-          android:stateNotNeeded="true"
+          android:theme="@style/Theme.Transparent"
           android:excludeFromRecents="true">
-          <intent-filter>
-            <action android:name="jp.co.cyberagent.stf.ACTION_IDENTIFY"/>
-            <category android:name="android.intent.category.DEFAULT"/>
-          </intent-filter>
         </activity>
 
         <activity android:name=".IdentityActivity"

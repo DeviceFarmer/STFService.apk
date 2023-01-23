@@ -19,22 +19,20 @@ import java.util.Date;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class ClipboardListener {
 
-    private final Context context;
+    private Context context;
     private String currentContent;
-
     private ClipboardManager clipboardManager = null;
+    private static ClipboardListener instance = null;
 
-    private static ClipboardListener _instance = null;
-
-    public static ClipboardListener instance(Context context) {
-        if (_instance == null) {
-            _instance = new ClipboardListener(context);
+    public static ClipboardListener getInstance(Context context) {
+        if (instance == null) {
+            instance = new ClipboardListener(context);
         }
-        return _instance;
+        return instance;
     }
 
-    private ClipboardListener(final Context ctx) {
-        context = ctx;
+    private ClipboardListener(final Context context) {
+        this.context = context;
 
         new Handler(Looper.getMainLooper()).post(() -> {
             clipboardManager = ContextCompat.getSystemService(context, ClipboardManager.class);
