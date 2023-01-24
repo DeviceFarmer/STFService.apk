@@ -5,48 +5,49 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 
 import java.util.List;
 
-import jp.co.cyberagent.stf.R;
-
 public class BrowserUtil {
+
+    static final String HTTP_URL = "http://localhost";
+
     public static List<ResolveInfo> getBrowsers(Context context) {
         PackageManager pm = context.getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(BrowserUtil.HTTP_URL));
 
-        Intent query = new Intent();
-        query.setAction(Intent.ACTION_VIEW);
-        query.setData(Uri.parse("http://localhost"));
-
-        return pm.queryIntentActivities(query, 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                return pm.queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL));
+            }
+            return pm.queryIntentActivities(intent, PackageManager.MATCH_ALL);
+        }
+        return pm.queryIntentActivities(intent, 0);
     }
 
     public static ResolveInfo getDefaultBrowser(Context context) {
         PackageManager pm = context.getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(BrowserUtil.HTTP_URL));
 
-        Intent query = new Intent();
-        query.setAction(Intent.ACTION_VIEW);
-        query.setData(Uri.parse("http://localhost"));
-
-        ResolveInfo info = pm.resolveActivity(query, 0);
-
-        if (info == null) {
-            return info;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                return BrowserUtil.filterChooser(pm.resolveActivity(intent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY)));
+            }
+            return BrowserUtil.filterChooser(pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY));
         }
+        return BrowserUtil.filterChooser(pm.resolveActivity(intent, 0));
+    }
 
-        // Could be a Chooser
-        if (info.activityInfo.packageName.equals("android")) {
-            return null;
-        }
-
-        return info;
+    public static ResolveInfo filterChooser(ResolveInfo info) {
+        return info.activityInfo.packageName.equals("android") ? null : info;
     }
 
     public static boolean isSameBrowser(ResolveInfo browserOne, ResolveInfo browserTwo) {
         return browserOne != null && browserTwo != null
-                && browserOne.activityInfo != null && browserTwo.activityInfo != null
-                && browserOne.activityInfo.packageName.equals(browserTwo.activityInfo.packageName)
-                && browserOne.activityInfo.name.equals(browserTwo.activityInfo.name);
+            && browserOne.activityInfo != null && browserTwo.activityInfo != null
+            && browserOne.activityInfo.packageName.equals(browserTwo.activityInfo.packageName)
+            && browserOne.activityInfo.name.equals(browserTwo.activityInfo.name);
     }
 
     public static String getComponent(ResolveInfo info) {
