@@ -62,19 +62,19 @@ dependencies {
 import org.apache.tools.ant.taskdefs.condition.Os
 def archSuffix = Os.isFamily(Os.FAMILY_MAC) ? ':osx-x86_64' : ''
 protobuf {
-  protoc {
-    artifact = "com.google.protobuf:protoc:3.21.12$archSuffix"
-  }
-  plugins {
-    javalite {
-      artifact = "com.google.protobuf:protoc-gen-javalite:3.0.0$archSuffix"
+    protoc {
+      artifact = "com.google.protobuf:protoc:3.21.12$archSuffix"
     }
-  }
-  generateProtoTasks {
-    all().each { task ->
-      task.plugins {
-        javalite {}
+    plugins {
+      javalite {
+        artifact = "com.google.protobuf:protoc-gen-javalite:3.0.0$archSuffix"
       }
     }
-  }
+    generateProtoTasks {
+      all().each { task ->
+        task.plugins {
+          javalite {}
+        }
+      }
+    }
 }
