@@ -59,20 +59,22 @@ dependencies {
     compileOnly fileTree(dir: '../shim/libs', include: ['*.jar'])
 }
 
+import org.apache.tools.ant.taskdefs.condition.Os
+def archSuffix = Os.isFamily(Os.FAMILY_MAC) ? ':osx-x86_64' : ''
 protobuf {
     protoc {
-        artifact = 'com.google.protobuf:protoc:3.21.12'
+      artifact = "com.google.protobuf:protoc:3.21.12$archSuffix"
     }
     plugins {
-        javalite {
-            artifact = 'com.google.protobuf:protoc-gen-javalite:3.0.0'
-        }
+      javalite {
+        artifact = "com.google.protobuf:protoc-gen-javalite:3.0.0$archSuffix"
+      }
     }
     generateProtoTasks {
-        all().each { task ->
-            task.plugins {
-                javalite {}
-            }
+      all().each { task ->
+        task.plugins {
+          javalite {}
         }
+      }
     }
 }
