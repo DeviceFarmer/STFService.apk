@@ -131,6 +131,19 @@ nc localhost 1090
 
 This, too, will give you binary output that will be explained in the [usage](#usage) section.
 
+#### Note:
+
+Android versions 10 and higher prohibit receiving data from the clipboard. Below is the link:
+https://developer.android.com/about/versions/10/privacy/changes#clipboard-data
+
+As a solution to this problem, on Android 10 and later devices, in addition to adding READLOGS permission, it is assumed to force the process to restart after giving permission to bring the window to the front. I'm here.
+
+```
+adb -d shell pm grant jp.co.cyberagent.stf android.permission.READ_LOGS;
+adb -d shell appops set jp.co.cyberagent.stf SYSTEM_ALERT_WINDOW allow;
+adb -d shell am force-stop jp.co.cyberagent.stf;
+```
+
 ## Usage
 
 It is assumed that you now have an open connection to both the service and the agent. If not, follow the [instructions](#running) above.

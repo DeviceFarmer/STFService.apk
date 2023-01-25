@@ -118,16 +118,15 @@ public class Service extends android.app.Service {
         }
 
         Intent notificationIntent = new Intent(this, IdentityActivity.class);
-        Notification notification = new NotificationCompat.Builder(this, channelId)
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(android.R.drawable.ic_menu_info_details)
                 .setTicker(getString(R.string.service_ticker))
                 .setContentTitle(getString(R.string.service_title))
                 .setContentText(getString(R.string.service_text))
                 .setContentIntent(PendingIntent.getActivity(this, 0, notificationIntent, PENDING_INTENT_FLAG))
-                .setWhen(System.currentTimeMillis())
-                .build();
+                .setWhen(System.currentTimeMillis());
 
-        startForeground(NOTIFICATION_ID, notification);
+        startForeground(NOTIFICATION_ID, notification.build());
     }
 
     @Override
