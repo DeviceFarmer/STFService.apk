@@ -26,7 +26,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 30
         versionCode 11
-        versionName "2.4.9"
+        versionName "2.4.10"
         applicationId "jp.co.cyberagent.stf"
     }
 
