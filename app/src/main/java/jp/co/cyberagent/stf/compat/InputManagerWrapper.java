@@ -13,10 +13,13 @@ public class InputManagerWrapper {
 
     public InputManagerWrapper() {
         try {
-            eventInjector = new InputManagerEventInjector();
-        }
-        catch (UnsupportedOperationException e) {
-            eventInjector = new WindowManagerEventInjector();
+            eventInjector = new InputManagerGlobalEventInjector();
+        } catch (UnsupportedOperationException e) {
+            try {
+                eventInjector = new InputManagerEventInjector();
+            } catch (UnsupportedOperationException e2) {
+                eventInjector = new WindowManagerEventInjector();
+            }
         }
     }
 
@@ -31,6 +34,54 @@ public class InputManagerWrapper {
     private interface EventInjector {
         boolean injectKeyEvent(KeyEvent event);
         boolean injectInputEvent(InputEvent event);
+    }
+
+
+    /**
+     * EventInjector for SDK >=34
+     */
+    private class InputManagerGlobalEventInjector implements EventInjector {
+        public static final int INJECT_INPUT_EVENT_MODE_ASYNC = 0;
+        private Object inputManager;
+        private Method injector;
+
+        public InputManagerGlobalEventInjector() {
+            try {
+                Object inputManagerGlobal;
+                inputManagerGlobal = InternalApi.getSingleton("android.hardware.input.InputManagerGlobal");
+                Method m = inputManagerGlobal.getClass().getMethod("getInputManagerService");
+                inputManager = m.invoke(inputManagerGlobal);
+                injector = inputManager.getClass()
+                    .getMethod("injectInputEvent", InputEvent.class, int.class);
+            }
+            catch (NoSuchMethodException e) {
+                throw new UnsupportedOperationException("InputManagerGlobalEventInjector is not supported");
+            } catch (InvocationTargetException e) {
+                throw new UnsupportedOperationException("InputManagerGlobalEventInjector is not supported");
+            } catch (IllegalAccessException e) {
+                throw new UnsupportedOperationException("InputManagerGlobalEventInjector is not supported");
+            }
+        }
+
+        public boolean injectKeyEvent(KeyEvent event) {
+            return injectInputEvent(event);
+        }
+
+        @Override
+        public boolean injectInputEvent(InputEvent event) {
+            try {
+                injector.invoke(inputManager, event, INJECT_INPUT_EVENT_MODE_ASYNC);
+                return true;
+            }
+            catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return false;
+            }
+            catch (InvocationTargetException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
     }
 
     /**
