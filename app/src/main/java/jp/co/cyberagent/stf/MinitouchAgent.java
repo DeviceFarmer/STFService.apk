@@ -23,7 +23,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.Display;
 import android.view.InputDevice;
@@ -45,7 +44,6 @@ import jp.co.cyberagent.stf.compat.InputManagerWrapper;
 import jp.co.cyberagent.stf.compat.WindowManagerWrapper;
 import jp.co.cyberagent.stf.util.InternalApi;
 
-@RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class MinitouchAgent extends Thread {
     private static final String TAG = MinitouchAgent.class.getSimpleName();
     private static final String SOCKET = "minitouchagent";
