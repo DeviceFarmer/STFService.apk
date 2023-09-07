@@ -11,7 +11,7 @@ buildscript {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     signingConfigs {
         debug {
