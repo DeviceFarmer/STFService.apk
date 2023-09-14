@@ -40,7 +40,7 @@ public class BrowserUtil {
     }
 
     public static ResolveInfo filterChooser(ResolveInfo info) {
-        return info.activityInfo.packageName.equals("android") ? null : info;
+        return info == null || info.activityInfo.packageName.equals("android") ? null : info;
     }
 
     public static boolean isSameBrowser(ResolveInfo browserOne, ResolveInfo browserTwo) {
