@@ -16,10 +16,10 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: temurin
-        java-version: 18
+        java-version: 17
 
     - name: Build APK
-      run: bash gradlew build
+      run: sh gradlew build
 
     - name: Upload APK
       uses: actions/upload-artifact@v3
