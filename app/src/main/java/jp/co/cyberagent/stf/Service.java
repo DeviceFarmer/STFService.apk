@@ -46,6 +46,7 @@ import jp.co.cyberagent.stf.proto.Wire;
 import jp.co.cyberagent.stf.query.DoAddAccountMenuResponder;
 import jp.co.cyberagent.stf.query.DoIdentifyResponder;
 import jp.co.cyberagent.stf.query.DoRemoveAccountResponder;
+import jp.co.cyberagent.stf.query.DoCleanBluetoothBondedDevicesResponder;
 import jp.co.cyberagent.stf.query.GetAccountsResponder;
 import jp.co.cyberagent.stf.query.GetBluetoothStatusResponder;
 import jp.co.cyberagent.stf.query.GetBrowsersResponder;
@@ -312,6 +313,9 @@ public class Service extends android.app.Service {
 
                     router.register(Wire.MessageType.DO_REMOVE_ACCOUNT,
                             new DoRemoveAccountResponder(getBaseContext()));
+
+                    router.register(Wire.MessageType.DO_CLEAN_BLUETOOTH_BONDED_DEVICES,
+                        new DoCleanBluetoothBondedDevicesResponder(getBaseContext()));
 
                     router.register(Wire.MessageType.GET_ACCOUNTS,
                             new GetAccountsResponder(getBaseContext()));
