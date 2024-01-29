@@ -27,23 +27,21 @@ public class DoCleanBluetoothBondedDevicesResponder extends AbstractResponder {
         Wire.DoCleanBluetoothBondedDevicesRequest request =
                 Wire.DoCleanBluetoothBondedDevicesRequest.parseFrom(envelope.getMessage());
 
-        boolean successful = false;
-
         // Return early if the API level is not sufficient
         if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            return buildResponse(envelope, successful);
+            return buildResponse(envelope, false);
         }
 
         // Return early if Bluetooth is not available
         BluetoothManager bm = (BluetoothManager)context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bm == null) {
-            return buildResponse(envelope, successful);
+            return buildResponse(envelope, false);
         }
 
         // Return early if cannot get Bluetooth adapter
         BluetoothAdapter ba = bm.getAdapter();
         if (ba == null) {
-            return buildResponse(envelope, successful);
+            return buildResponse(envelope, false);
         }
 
         // Return early if no access to bonded devices
@@ -52,7 +50,7 @@ public class DoCleanBluetoothBondedDevicesResponder extends AbstractResponder {
             pairedDevices = ba.getBondedDevices();
         } catch (SecurityException exception) {
             Log.w(TAG, "Failed to un-pair devices: " + exception.getMessage());
-            return buildResponse(envelope, successful);
+            return buildResponse(envelope, false);
         }
 
         int successCount = 0;
@@ -66,8 +64,7 @@ public class DoCleanBluetoothBondedDevicesResponder extends AbstractResponder {
             }
         }
         Log.d(TAG, "Un-paired " + successCount + " devices successfully");
-        successful = true;
-        return buildResponse(envelope, successful);
+        return buildResponse(envelope, true);
     }
 
     private GeneratedMessageLite buildResponse(Wire.Envelope envelope, boolean successful) {
