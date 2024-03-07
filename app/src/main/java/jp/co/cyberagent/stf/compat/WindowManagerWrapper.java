@@ -1,5 +1,6 @@
 package jp.co.cyberagent.stf.compat;
 
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -125,6 +126,8 @@ public class WindowManagerWrapper {
     private class FreezeThawRotationInjector implements RotationInjector {
         private Method freezeRotationInjector;
         private Method thawRotationInjector;
+        //March 2024 security patch changes the arguments to these methods
+        boolean newMethods = false;
 
         public FreezeThawRotationInjector() {
             try {
@@ -137,13 +140,29 @@ public class WindowManagerWrapper {
                         .getMethod("thawRotation");
             }
             catch (NoSuchMethodException e) {
-                throw new UnsupportedOperationException("InputManagerEventInjector is not supported");
+                try {
+                    freezeRotationInjector = windowManager.getClass()
+                            // public void freezeRotation(int rotation)
+                            .getMethod("freezeRotation", int.class, String.class);
+
+                    thawRotationInjector = windowManager.getClass()
+                            // public void thawRotation()
+                            .getMethod("thawRotation", String.class);
+
+                    newMethods = true;
+                } catch (NoSuchMethodException e2) {
+                    throw new UnsupportedOperationException("InputManagerEventInjector is not supported");
+                }
             }
         }
 
         public void freezeRotation(int rotation) {
             try {
-                freezeRotationInjector.invoke(windowManager, rotation);
+                if (newMethods) {
+                    freezeRotationInjector.invoke(windowManager, rotation, "jp.co.cyberagent.stf");
+                } else {
+                    freezeRotationInjector.invoke(windowManager, rotation);
+                }
             }
             catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -155,7 +174,11 @@ public class WindowManagerWrapper {
 
         public void thawRotation() {
             try {
-                thawRotationInjector.invoke(windowManager);
+                if (newMethods) {
+                    thawRotationInjector.invoke(windowManager, "jp.co.cyberagent.stf");
+                } else {
+                    thawRotationInjector.invoke(windowManager);
+                }
             }
             catch (IllegalAccessException e) {
                 e.printStackTrace();
