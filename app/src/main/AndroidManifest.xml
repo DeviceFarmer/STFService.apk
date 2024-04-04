@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -16,10 +15,12 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.DUMP"
       tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    
   <queries>
     <intent>
       <action android:name="android.intent.action.VIEW" />
