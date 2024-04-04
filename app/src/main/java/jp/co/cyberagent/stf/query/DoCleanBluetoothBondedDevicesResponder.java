@@ -29,18 +29,21 @@ public class DoCleanBluetoothBondedDevicesResponder extends AbstractResponder {
 
         // Return early if the API level is not sufficient
         if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            Log.e(TAG, "API level is not sufficient");
             return buildResponse(envelope, false);
         }
 
         // Return early if Bluetooth is not available
         BluetoothManager bm = (BluetoothManager)context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bm == null) {
+            Log.e(TAG, "BluetoothManager is null");
             return buildResponse(envelope, false);
         }
 
         // Return early if cannot get Bluetooth adapter
         BluetoothAdapter ba = bm.getAdapter();
         if (ba == null) {
+            Log.e(TAG, "BluetoothAdapter is null");
             return buildResponse(envelope, false);
         }
 
