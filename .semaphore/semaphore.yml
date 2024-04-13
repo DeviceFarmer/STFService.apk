@@ -3,20 +3,20 @@ name: Android
 agent:
   machine:
     type: e1-standard-2
-    os_image: ubuntu1804
+    os_image: ubuntu2004
 blocks:
   - name: Gradle
     task:
       jobs:
         - name: Build
           commands:
-            - wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O ~/android-commandline-tools.zip
+            - wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O ~/android-commandline-tools.zip
             - mkdir -p ~/android-sdk/
             - unzip ~/android-commandline-tools.zip -d ~/android-sdk/cmdline-tools/
             - mv ~/android-sdk/cmdline-tools/cmdline-tools/ ~/android-sdk/cmdline-tools/latest
             - export PATH=$PATH:~/android-sdk/cmdline-tools/latest/bin
-            - yes | sdkmanager "ndk;25.2.9519653"
-            - export PATH=$PATH:~/android-sdk/ndk/25.2.9519653/
+            - yes | sdkmanager "ndk;26.3.11579264"
+            - export PATH=$PATH:~/android-sdk/ndk/26.3.11579264/
             - export ANDROID_SDK_ROOT=~/android-sdk
             - checkout
             - sem-version java 17
