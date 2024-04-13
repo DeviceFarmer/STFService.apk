@@ -10,6 +10,7 @@ blocks:
       jobs:
         - name: Build
           commands:
+            - sem-version java 17
             - wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O ~/android-commandline-tools.zip
             - mkdir -p ~/android-sdk/
             - unzip ~/android-commandline-tools.zip -d ~/android-sdk/cmdline-tools/
@@ -19,6 +20,5 @@ blocks:
             - export PATH=$PATH:~/android-sdk/ndk/26.3.11579264/
             - export ANDROID_SDK_ROOT=~/android-sdk
             - checkout
-            - sem-version java 17
             - ./gradlew build
             - artifact push job app/build/outputs/apk/release/app-release.apk
