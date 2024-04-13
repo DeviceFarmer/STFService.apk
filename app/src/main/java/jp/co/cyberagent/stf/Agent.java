@@ -36,7 +36,7 @@ public class Agent extends Thread {
 
     public static void main(String[] args) {
         ProcUtil.setArgV0(PROCESS_NAME);
-        Looper.prepare();
+        Looper.prepareMainLooper();
         Handler handler = new Handler();
         for (String arg : args) {
             if (arg.equals("--version")) {
