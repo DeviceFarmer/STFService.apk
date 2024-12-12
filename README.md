@@ -1,6 +1,6 @@
 # STFService.apk
 
-**STFService.apk** is both an Android [Service](http://developer.android.com/guide/components/services.html) and a CLI-runnable "agent" application providing various services and event streams for [STF](https://github.com/openstf/stf). While it would usually make sense to separate these various services into their own components, we're trying to keep resource usage lower by bundling our services into a single package.
+**STFService.apk** is both an Android [Service](http://developer.android.com/guide/components/services.html) and a CLI-runnable "agent" application providing various services and event streams for [STF](https://github.com/DeviceFarmer/stf). While it would usually make sense to separate these various services into their own components, we're trying to keep resource usage lower by bundling our services into a single package.
 
 ## Features
 
@@ -153,7 +153,7 @@ All other requests must go to the service. Furthermore, while all requests to th
 
 The requests themselves are heavily wrapped. Quite honestly it's probably a bit over-engineered in that sense, and a bit of a pain to use. But it works, and you're able to receive replies and monitoring events at any time in any order, without having to care about waiting for the previous request to complete.
 
-Take a look at the source to see the messages are sent and what you should expect. You can also take a look at [STF](https://github.com/openstf/stf) to see how the messages are being used in a [Node.js](https://nodejs.org/) application (although there are some abstractions in place).
+Take a look at the source to see the messages are sent and what you should expect. You can also take a look at [STF](https://github.com/DeviceFarmer/stf) to see how the messages are being used in a [Node.js](https://nodejs.org/) application (although there are some abstractions in place).
 
 ## Contributing
 
