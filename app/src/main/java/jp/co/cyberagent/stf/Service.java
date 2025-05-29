@@ -455,13 +455,17 @@ public class Service extends android.app.Service {
                         String currentUsbState = "";
                         String currentAdbState = "";
                         BufferedReader adbdStateReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
                         for (String line = adbdStateReader.readLine(); line != null; line = adbdStateReader.readLine()) {
                             if (line.contains("Current Functions:") || line.contains("mCurrentFunctions:")) {
                                 currentAdbState = line.split(":").length == 2 ? line.split(":")[1] : "";
                             } else if (line.contains("Kernel state:")) {
                                 currentUsbState = line.split(":").length == 2 ? line.split(":")[1] : "";
+                            } else if (line.toLowerCase().contains("kernel_state")) {
+                                currentUsbState = line.split("=").length == 2 ? line.split(":")[1] : "";
                             }
                         }
+
 
                         if (!currentUsbState.equals(lastUsbState)) {
                             Log.d(TAG, "Kernel state changed to" + currentUsbState);
