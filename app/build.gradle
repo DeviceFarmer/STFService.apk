@@ -6,12 +6,12 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.5'
     }
 }
 
 android {
-    compileSdk 34
+    compileSdk 36
 
     signingConfigs {
         debug {
