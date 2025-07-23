@@ -462,7 +462,7 @@ public class Service extends android.app.Service {
                             } else if (line.contains("Kernel state:")) {
                                 currentUsbState = line.split(":").length == 2 ? line.split(":")[1] : "";
                             } else if (line.toLowerCase().contains("kernel_state")) {
-                                currentUsbState = line.split("=").length == 2 ? line.split(":")[1] : "";
+                                currentUsbState = line.split("=").length == 2 ? line.split("=")[1] : "";
                             }
                         }
 
