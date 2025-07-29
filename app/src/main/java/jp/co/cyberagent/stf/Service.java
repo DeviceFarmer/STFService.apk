@@ -479,7 +479,7 @@ public class Service extends android.app.Service {
 
                         boolean disconnected = lastUsbState.contains("DISCONNECTED");
                         boolean adbEnabled = lastAdbState.contains("adb");
-                        if (disconnected || !adbEnabled) {
+                        if (disconnected || (!lastAdbState.equals("") && !adbEnabled)) {
                             Log.d(TAG, "Start activity for STFService");
                             getApplication().startActivity(new IdentityActivity.IntentBuilder().build(getApplication()));
                         }
