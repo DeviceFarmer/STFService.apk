@@ -1,0 +1,21 @@
+{
+  "name": "@devicefarmer/stfservice-prebuilt",
+  "version": "2.5.5",
+  "description": "Prebuilt STFService.apk and its wire protocol definition.",
+  "keywords": [
+    "stfservice"
+  ],
+  "license": "Apache-2.0",
+  "author": {
+    "name": "The DeviceFarmer Project",
+    "email": "support@devicefarmer.com",
+    "url": "https://devicefarmer.github.io/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devicefarmer/STFService.apk.git"
+  },
+  "scripts": {
+    "prepublish": "make"
+  }
+}
