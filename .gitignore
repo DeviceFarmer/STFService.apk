@@ -5,3 +5,7 @@
 .DS_Store
 build
 temp
+/*.tgz
+/node_modules/
+/prebuilt/
+package-lock.json
