@@ -14,9 +14,11 @@ import android.view.Surface;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Map;
 
 import jp.co.cyberagent.stf.compat.InputManagerWrapper;
 import jp.co.cyberagent.stf.compat.PowerManagerWrapper;
+import jp.co.cyberagent.stf.compat.TelephonyManagerWrapper;
 import jp.co.cyberagent.stf.compat.WindowManagerWrapper;
 import jp.co.cyberagent.stf.proto.Wire;
 import jp.co.cyberagent.stf.util.InternalApi;
@@ -47,6 +49,10 @@ public class Agent extends Thread {
                 printServiceDebugInfo();
                 return;
             }
+            else if (arg.equals("--telephony")) {
+                printSubscriberProperties();
+                return;
+            }
             else {
                 System.err.println("Error: unknown argument " + arg);
                 System.exit(1);
@@ -67,6 +73,15 @@ public class Agent extends Thread {
 
         new Agent(handler).start();
         Looper.loop();
+    }
+
+    private static void printSubscriberProperties() {
+        Map<String, String> properties =
+                new TelephonyManagerWrapper().getSubscriberProperties();
+
+        for (Map.Entry<String, String> property : properties.entrySet()) {
+            System.out.printf("%s=%s\n", property.getKey(), property.getValue());
+        }
     }
 
     private static void printServiceDebugInfo() {
