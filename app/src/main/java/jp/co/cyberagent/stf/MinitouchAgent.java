@@ -28,6 +28,7 @@ import android.view.Display;
 import android.view.InputDevice;
 import android.view.InputEvent;
 import android.view.MotionEvent;
+import android.view.Surface;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -83,6 +84,10 @@ public class MinitouchAgent extends Thread {
                 Class<?> cls = displayInfo.getClass();
                 int width = cls.getDeclaredField("logicalWidth").getInt(displayInfo);
                 int height = cls.getDeclaredField("logicalHeight").getInt(displayInfo);
+                int rotation = cls.getDeclaredField("rotation").getInt(displayInfo);
+                if (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) {
+                    return new Point(height, width);
+                }
                 return new Point(width, height);
             }
         } catch (IllegalAccessException e) {
@@ -126,6 +131,9 @@ public class MinitouchAgent extends Thread {
         int rotation = windowManager.getRotation();
         if (rotation == 1){
             y_translate = width;
+        } else if (rotation == 2){
+            x_translate = width;
+            y_translate = height;
         } else if (rotation == 3){
             x_translate = height;
         }
