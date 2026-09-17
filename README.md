@@ -48,6 +48,25 @@ Build with Gradle:
 ./gradlew assembleDebug
 ```
 
+GitHub Actions runs `make` on pull requests and pushes to `master`. This builds and lints the APK, checks that its version matches the npm package, and verifies the APK and wire protocol in the packed npm archive. The `stfservice-package` artifact contains the APK and npm archive; Gradle reports are uploaded separately.
+
+## Releasing
+
+The release flow uses GitHub Actions and npm trusted publishing. Before the first release, configure the trusted publisher for `@devicefarmer/stfservice-prebuilt` on npmjs.com with these case-sensitive values:
+
+* Organization or user: `DeviceFarmer`
+* Repository: `STFService.apk`
+* Workflow filename: `release.yml`
+* Environment: leave blank
+
+No npm token is needed. Disable the old Semaphore project when this migration merges; its build and publishing pipelines are removed here.
+
+1. Run **Prepare release** on `master` with a version such as `2.5.7`, without a `v` prefix. It updates `package.json` and Android `versionName`, increments `versionCode`, writes generated notes to `.github/CHANGELOG.md`, and pushes `release/v2.5.7`.
+2. Open the pull request using the link in the workflow summary, add the `ignore-for-release` label, review the versions and notes, and merge after CI passes. Opening the PR manually ensures GitHub runs CI for the branch created with `GITHUB_TOKEN`.
+3. Run **Release** on `master` with the same version. It checks the merged versions and notes, rebuilds and verifies the artifacts, creates the `v2.5.7` tag and GitHub release with the APK and npm archive attached, and publishes that archive to npm with provenance.
+
+Both workflows reject a version that already has a tag or is published on npm. Publishing is restricted to `DeviceFarmer/STFService.apk`. If the npm job fails before publishing, fix the cause and use **Re-run failed jobs** to retry it with the same archive. Do not start a new release run for that version.
+
 ## Running
 
 You'll need to [build](#building) first.

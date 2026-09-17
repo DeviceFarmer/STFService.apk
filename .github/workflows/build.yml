@@ -1,29 +1,73 @@
-name: Build APK
+name: CI
 
 on:
+  pull_request:
+  push:
+    branches: [master]
   workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
   build:
-    name: Build APK
-    runs-on: ubuntu-latest
+    name: Build and package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-    - name: Checkout
-      uses: actions/checkout@v3
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
 
-    - name: Setup Java
-      uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: 17
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools platforms;android-36 build-tools;35.0.0
 
-    - name: Build APK
-      run: sh gradlew build
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/master' }}
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
-      with:
-        name: app-release
-        path: app/build/outputs/apk/release/app-release.apk
-        retention-days: 90
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Test release validation
+        run: node --test .github/scripts/release.test.js
+
+      - name: Build, lint and stage the APK
+        run: make
+
+      - name: Pack and verify the npm archive
+        run: |
+          npm pack --ignore-scripts
+          mkdir "$RUNNER_TEMP/package-check"
+          tar -xzf devicefarmer-stfservice-prebuilt-*.tgz -C "$RUNNER_TEMP/package-check"
+          test -s "$RUNNER_TEMP/package-check/package/prebuilt/noarch/STFService.apk"
+          cmp prebuilt/noarch/STFService.apk "$RUNNER_TEMP/package-check/package/prebuilt/noarch/STFService.apk"
+          cmp app/src/main/proto/wire.proto "$RUNNER_TEMP/package-check/package/prebuilt/noarch/wire.proto"
+          node -e 'require("node:assert/strict").equal(require(process.env.RUNNER_TEMP + "/package-check/package/package.json").version, require("./package.json").version)'
+
+      - name: Upload APK and npm archive
+        uses: actions/upload-artifact@v7
+        with:
+          name: stfservice-package
+          path: |
+            prebuilt/noarch/STFService.apk
+            *.tgz
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload lint and test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gradle-reports
+          path: app/build/reports/
+          if-no-files-found: ignore
+          retention-days: 14

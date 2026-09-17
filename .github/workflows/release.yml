@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version already merged on the default branch, without the v prefix
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Check the merged version and release notes
+        env:
+          VERSION: ${{ inputs.version }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: node .github/scripts/release.js check-release
+
+  build:
+    needs: validate
+    uses: ./.github/workflows/build.yml
+
+  release:
+    name: Publish GitHub release
+    if: github.repository == 'DeviceFarmer/STFService.apk'
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: stfservice-package
+          path: dist
+
+      - name: Tag and publish the tested APK
+        env:
+          VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node .github/scripts/release.js notes > "$RUNNER_TEMP/release-notes.md"
+          git tag "v$VERSION" "$GITHUB_SHA"
+          git push origin "v$VERSION"
+          gh release create "v$VERSION" \
+            dist/prebuilt/noarch/STFService.apk dist/*.tgz \
+            --verify-tag --title "v$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md"
+
+  npm:
+    name: Publish to npm
+    needs: release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Install npm with trusted publishing support
+        run: npm install -g npm@11
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: stfservice-package
+          path: dist
+
+      - name: Publish the tested archive with provenance
+        run: npm publish dist/*.tgz --access public --provenance

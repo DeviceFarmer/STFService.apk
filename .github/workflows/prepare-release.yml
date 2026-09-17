@@ -1,0 +1,68 @@
+name: Prepare release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release, without the v prefix (e.g. 2.5.7)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prepare-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Prepare release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      VERSION: ${{ inputs.version }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Validate the release version
+        run: node .github/scripts/release.js check-prepare
+
+      - name: Generate release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PREVIOUS=$(git describe --tags --abbrev=0)
+          gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" -X POST \
+            -f tag_name="v$VERSION" \
+            -f target_commitish="$GITHUB_SHA" \
+            -f previous_tag_name="$PREVIOUS" \
+            --jq .body > "$RUNNER_TEMP/release-notes.md"
+
+      - name: Update Android and npm versions and changelog
+        run: node .github/scripts/release.js prepare "$RUNNER_TEMP/release-notes.md"
+
+      - name: Push the release branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json app/build.gradle .github/CHANGELOG.md
+          git commit -s -m "Prepare release v$VERSION"
+          git push origin "HEAD:refs/heads/release/v$VERSION"
+
+      - name: Link the release pull request
+        run: |
+          {
+            echo "## Release $VERSION prepared"
+            echo
+            echo "1. [Open the pull request](https://github.com/$GITHUB_REPOSITORY/compare/$DEFAULT_BRANCH...release/v$VERSION?expand=1)."
+            echo '2. Label it `ignore-for-release`, review the versions and changelog, and merge once CI passes.'
+            echo "3. Run the Release workflow on $DEFAULT_BRANCH with version $VERSION."
+          } >> "$GITHUB_STEP_SUMMARY"
