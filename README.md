@@ -59,7 +59,7 @@ The release flow uses GitHub Actions and npm trusted publishing. Before the firs
 * Workflow filename: `release.yml`
 * Environment: leave blank
 
-No npm token is needed. Disable the old Semaphore project when this migration merges; its build and publishing pipelines are removed here.
+No npm token is needed. The Semaphore files remain as no-op pipelines, with their build, publishing, and automatic promotion steps commented out.
 
 1. Run **Prepare release** on `master` with a version such as `2.5.7`, without a `v` prefix. It updates `package.json` and Android `versionName`, increments `versionCode`, writes generated notes to `.github/CHANGELOG.md`, and pushes `release/v2.5.7`.
 2. Open the pull request using the link in the workflow summary, add the `ignore-for-release` label, review the versions and notes, and merge after CI passes. Opening the PR manually ensures GitHub runs CI for the branch created with `GITHUB_TOKEN`.
