@@ -2,7 +2,6 @@
 /.github/
 /.gradle/
 /.npmignore
-/.semaphore/
 /*.gradle
 /*.tgz
 /app/
