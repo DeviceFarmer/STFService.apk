@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/devicefarmer/STFService.apk.git"
+    "url": "git+https://github.com/DeviceFarmer/STFService.apk.git"
   },
   "scripts": {
     "prepublish": "make"

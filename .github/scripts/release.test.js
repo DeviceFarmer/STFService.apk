@@ -31,6 +31,12 @@ test('the release workflow publishes a local archive', (t) => {
   assert.match(result.stdout, /\+ stfservice-release-test@0\.0\.0/)
 })
 
+test('the manifest repository matches the GitHub repository casing', () => {
+  const published = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8'))
+  assert.equal(published.repository.url, 'git+https://github.com/DeviceFarmer/STFService.apk.git',
+    'npm rejects the provenance bundle unless repository.url matches the GitHub repository, including its casing')
+})
+
 test('prepare requires an increasing stable version and the default branch', () => {
   for (const version of ['2.5.7', '2.10.0', '3.0.0']) {
     validateVersion('prepare', version, manifest, gradle, 'refs/heads/master', 'master')
