@@ -4,7 +4,7 @@ const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
 const {test} = require('node:test')
-const {validateVersion, prepareRelease, releaseNotes, checkUnpublished} = require('./release')
+const {validateVersion, prepareRelease, releaseNotes} = require('./release')
 
 const manifest = {version: '2.5.6'}
 const gradle = 'versionCode 15\nversionName "2.5.6"\n'
@@ -29,25 +29,6 @@ test('the release workflow publishes a local archive', (t) => {
   })
   assert.equal(result.status, 0, result.stderr)
   assert.match(result.stdout, /\+ stfservice-release-test@0\.0\.0/)
-})
-
-test('npm recovery requires an existing tag and an unpublished npm version', async (t) => {
-  const tag = t.mock.method(childProcess, 'spawnSync', () => ({status: 0}))
-  const registry = t.mock.method(global, 'fetch', async () => ({status: 404}))
-  await checkUnpublished('2.5.7', true)
-  assert.equal(registry.mock.calls[0].arguments[0], 'https://registry.npmjs.org/@devicefarmer%2fstfservice-prebuilt/2.5.7')
-  await assert.rejects(checkUnpublished('2.5.7', false), /Tag v2\.5\.7 already exists/)
-  tag.mock.mockImplementation(() => ({status: 1}))
-  await assert.rejects(checkUnpublished('2.5.7', true), /Tag v2\.5\.7 must exist/)
-  await checkUnpublished('2.5.7', false)
-  tag.mock.mockImplementation(() => ({status: 128}))
-  await assert.rejects(checkUnpublished('2.5.7', true), /Tag v2\.5\.7 must exist/)
-  await assert.rejects(checkUnpublished('2.5.7', false), /tags could not be checked/)
-  tag.mock.mockImplementation(() => ({status: 0}))
-  for (const status of [200, 401, 500]) {
-    registry.mock.mockImplementation(async () => ({status}))
-    await assert.rejects(checkUnpublished('2.5.7', true), new RegExp(`npm returned ${status}`))
-  }
 })
 
 test('prepare requires an increasing stable version and the default branch', () => {

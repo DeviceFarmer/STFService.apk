@@ -7,10 +7,6 @@ on:
         description: Version already merged on the default branch, without the v prefix
         required: true
         type: string
-      npm_only:
-        description: Publish the existing GitHub release archive to npm without rebuilding
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -38,10 +34,9 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-        run: node .github/scripts/release.js ${{ inputs.npm_only && 'check-npm' || 'check-release' }}
+        run: node .github/scripts/release.js check-release
 
   build:
-    if: ${{ !inputs.npm_only }}
     needs: validate
     uses: ./.github/workflows/build.yml
 
@@ -81,8 +76,7 @@ jobs:
 
   npm:
     name: Publish to npm
-    if: ${{ !cancelled() && github.repository == 'DeviceFarmer/STFService.apk' && needs.validate.result == 'success' && (inputs.npm_only || needs.release.result == 'success') }}
-    needs: [validate, release]
+    needs: release
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -97,17 +91,9 @@ jobs:
         run: npm install -g npm@11
 
       - uses: actions/download-artifact@v8
-        if: ${{ !inputs.npm_only }}
         with:
           name: stfservice-package
           path: dist
-
-      - name: Download the existing release archive
-        if: inputs.npm_only
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ inputs.version }}
-        run: gh release download "v$VERSION" --repo "$GITHUB_REPOSITORY" --pattern "devicefarmer-stfservice-prebuilt-$VERSION.tgz" --dir dist
 
       - name: Publish the tested archive with provenance
         run: npm publish ./dist/*.tgz --access public --provenance

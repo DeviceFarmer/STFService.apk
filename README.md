@@ -65,7 +65,7 @@ No npm token is needed.
 2. Open the pull request using the link in the workflow summary, add the `ignore-for-release` label, review the versions and notes, and merge after CI passes. Opening the PR manually ensures GitHub runs CI for the branch created with `GITHUB_TOKEN`.
 3. Run **Release** on `master` with the same version. It checks the merged versions and notes, rebuilds and verifies the artifacts, creates the `v2.5.7` tag and GitHub release with the APK and npm archive attached, and publishes that archive to npm with provenance.
 
-Normal release runs reject a version that already has a tag or is published on npm. Publishing is restricted to `DeviceFarmer/STFService.apk`. If the npm job fails before publishing, fix the cause and use **Re-run failed jobs** to retry it with the same archive. If recovery requires a workflow change, merge the fix and run **Release** on `master` with the same version and **npm_only** enabled. This requires an existing tag and an unpublished npm version, downloads the archive from the existing GitHub release, and publishes it without rebuilding or recreating the tag and release.
+Both workflows reject a version that already has a tag or is published on npm. Publishing is restricted to `DeviceFarmer/STFService.apk`. If the npm job fails before publishing, fix the cause and use **Re-run failed jobs** to retry it with the same archive. Do not start a new release run for that version.
 
 ## Running
 
