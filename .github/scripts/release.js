@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
-const {spawnSync} = require('node:child_process')
+const childProcess = require('node:child_process')
 
 const changelogPath = '.github/CHANGELOG.md'
 
@@ -45,9 +45,11 @@ function releaseNotes(version, changelog) {
   return notes
 }
 
-async function checkUnpublished(version) {
-  const tag = spawnSync('git', ['show-ref', '--verify', '--quiet', `refs/tags/v${version}`])
-  assert.equal(tag.status, 1, `Tag v${version} already exists or tags could not be checked`)
+async function checkUnpublished(version, existingRelease) {
+  const tag = childProcess.spawnSync('git', ['show-ref', '--verify', '--quiet', `refs/tags/v${version}`])
+  assert.equal(tag.status, existingRelease ? 0 : 1, existingRelease
+    ? `Tag v${version} must exist before retrying npm publication`
+    : `Tag v${version} already exists or tags could not be checked`)
   const response = await fetch(`https://registry.npmjs.org/@devicefarmer%2fstfservice-prebuilt/${version}`, {
     signal: AbortSignal.timeout(30000)
   })
@@ -62,10 +64,11 @@ async function main() {
     console.log(releaseNotes(version, changelog))
     return
   }
-  assert.ok(['check-prepare', 'check-release', 'prepare'].includes(command), 'Unknown release command')
+  assert.ok(['check-prepare', 'check-release', 'check-npm', 'prepare'].includes(command), 'Unknown release command')
+  const isRelease = command === 'check-release' || command === 'check-npm'
   const manifestText = fs.readFileSync('package.json', 'utf8')
   const gradle = fs.readFileSync('app/build.gradle', 'utf8')
-  validateVersion(command === 'check-release' ? 'release' : 'prepare', version,
+  validateVersion(isRelease ? 'release' : 'prepare', version,
     JSON.parse(manifestText), gradle, process.env.GITHUB_REF, process.env.DEFAULT_BRANCH)
   if (command === 'prepare') {
     const next = prepareRelease(version, manifestText, gradle, changelog, fs.readFileSync(notesPath, 'utf8'))
@@ -74,13 +77,13 @@ async function main() {
     fs.writeFileSync(changelogPath, next.changelog)
     return
   }
-  if (command === 'check-release') {
+  if (isRelease) {
     releaseNotes(version, changelog)
   }
-  await checkUnpublished(version)
+  await checkUnpublished(version, command === 'check-npm')
 }
 
-module.exports = {validateVersion, prepareRelease, releaseNotes}
+module.exports = {validateVersion, prepareRelease, releaseNotes, checkUnpublished}
 
 if (require.main === module) {
   main().catch(error => {
