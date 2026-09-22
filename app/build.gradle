@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.6'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.10.0'
     }
 }
 
@@ -37,7 +37,7 @@ android {
         release {
             signingConfig signingConfigs.debug
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
         }
     }
 
@@ -46,6 +46,9 @@ android {
         targetCompatibility = '1.8'
     }
     namespace 'jp.co.cyberagent.stf'
+    buildFeatures {
+        buildConfig true
+    }
     lint {
         informational 'ExpiredTargetSdkVersion'
     }
@@ -54,25 +57,20 @@ android {
 
 dependencies {
     implementation 'androidx.core:core:1.12.0'
-    implementation 'com.google.protobuf:protobuf-lite:3.0.1'
+    implementation 'com.google.protobuf:protobuf-javalite:4.36.2'
     compileOnly fileTree(dir: '../shim/libs', include: ['*.jar'])
 }
 
-import org.apache.tools.ant.taskdefs.condition.Os
-def archSuffix = Os.isFamily(Os.FAMILY_MAC) ? ':osx-x86_64' : ''
 protobuf {
     protoc {
-      artifact = "com.google.protobuf:protoc:3.21.12$archSuffix"
-    }
-    plugins {
-      javalite {
-        artifact = "com.google.protobuf:protoc-gen-javalite:3.0.0$archSuffix"
-      }
+      artifact = "com.google.protobuf:protoc:4.36.2"
     }
     generateProtoTasks {
       all().each { task ->
-        task.plugins {
-          javalite {}
+        task.builtins {
+          java {
+            option 'lite'
+          }
         }
       }
     }
