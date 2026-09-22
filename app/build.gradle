@@ -56,7 +56,7 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.core:core:1.19.0'
     implementation 'com.google.protobuf:protobuf-javalite:4.36.2'
     compileOnly fileTree(dir: '../shim/libs', include: ['*.jar'])
 }
