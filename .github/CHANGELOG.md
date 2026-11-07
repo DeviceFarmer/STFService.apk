@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.5.9
+
+<!-- Release notes generated using configuration in .github/release.yml at 35f39e3a9c4a65e81cc998d1a190f24bd98c6e9c -->
+
+### What's Changed
+* Update the build toolchain and migrate to protobuf-javalite by @koral-- in https://github.com/DeviceFarmer/STFService.apk/pull/194
+* Bump gradle-wrapper from 9.7.1 to 9.8.0 by @dependabot[bot] in https://github.com/DeviceFarmer/STFService.apk/pull/195
+* Bump gradle-wrapper from 9.8.0 to 9.8.1 by @dependabot[bot] in https://github.com/DeviceFarmer/STFService.apk/pull/197
+* Bump gradle-wrapper from 9.8.1 to 9.8.2 by @dependabot[bot] in https://github.com/DeviceFarmer/STFService.apk/pull/198
+* Keep the minitouch agent alive when a command is out of range by @koral-- in https://github.com/DeviceFarmer/STFService.apk/pull/199
+
+
+**Full Changelog**: https://github.com/DeviceFarmer/STFService.apk/compare/v2.5.8...v2.5.9
+
 ## 2.5.8
 
 <!-- Release notes generated using configuration in .github/release.yml at 821c53491796a50090f10fb7bd45d0fd56b42ecf -->
