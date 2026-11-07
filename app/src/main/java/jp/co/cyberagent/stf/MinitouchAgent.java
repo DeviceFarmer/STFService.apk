@@ -38,7 +38,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import jp.co.cyberagent.stf.compat.InputManagerWrapper;
@@ -48,15 +47,17 @@ import jp.co.cyberagent.stf.util.InternalApi;
 public class MinitouchAgent extends Thread {
     private static final String TAG = MinitouchAgent.class.getSimpleName();
     private static final String SOCKET = "minitouchagent";
-    private static final int DEFAULT_MAX_CONTACTS = 10;
+    // Commits build MotionEvents for at most two pointers, so advertise no more
+    // than that. Clients such as stf use this limit to drop extra contacts.
+    private static final int MAX_CONTACTS = 2;
     private static final int DEFAULT_MAX_PRESSURE = 0;
     private final int width;
     private final int height;
     private LocalServerSocket serverSocket;
 
-    private MotionEvent.PointerProperties[] pointerProperties = new MotionEvent.PointerProperties[2];
-    private MotionEvent.PointerCoords[] pointerCoords = new MotionEvent.PointerCoords[2];
-    private PointerEvent[] events = new PointerEvent[2];
+    private MotionEvent.PointerProperties[] pointerProperties = new MotionEvent.PointerProperties[MAX_CONTACTS];
+    private MotionEvent.PointerCoords[] pointerCoords = new MotionEvent.PointerCoords[MAX_CONTACTS];
+    private PointerEvent[] events = new PointerEvent[MAX_CONTACTS];
 
     private final InputManagerWrapper inputManager;
     private final WindowManagerWrapper windowManager;
@@ -194,7 +195,7 @@ public class MinitouchAgent extends Thread {
             OutputStreamWriter out = new OutputStreamWriter(clientSocket.getOutputStream());
             out.write("v 1\n");
             String resolution = String.format(Locale.US, "^ %d %d %d %d%n",
-                DEFAULT_MAX_CONTACTS, width, height, DEFAULT_MAX_PRESSURE);
+                MAX_CONTACTS, width, height, DEFAULT_MAX_PRESSURE);
             out.write(resolution);
             out.flush();
         } catch (IOException e) {
@@ -218,6 +219,14 @@ public class MinitouchAgent extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static int readContact(Scanner scanner) {
+        int contact = scanner.nextInt();
+        if (contact < 0 || contact >= MAX_CONTACTS) {
+            throw new IllegalArgumentException("contact " + contact + " is out of range");
+        }
+        return contact;
     }
 
     /**
@@ -251,25 +260,24 @@ public class MinitouchAgent extends Thread {
                             count = 0;
                             break;
                         case "u":
-                            count++;
-                            contact = scanner.nextInt();
+                            contact = readContact(scanner);
                             events[contact].action = (contact == 0) ? MotionEvent.ACTION_UP : MotionEvent.ACTION_POINTER_2_UP;
+                            count++;
                             break;
                         case "d":
-                            count++;
-                            contact = scanner.nextInt();
-                            events[contact].lastX = scanner.nextInt();
-                            events[contact].lastY = scanner.nextInt();
-                            //scanner.nextInt(); //pressure is currently not supported
-                            events[contact].action = (contact == 0) ? MotionEvent.ACTION_DOWN : MotionEvent.ACTION_POINTER_2_DOWN;
-                            break;
                         case "m":
-                            count++;
-                            contact = scanner.nextInt();
-                            events[contact].lastX = scanner.nextInt();
-                            events[contact].lastY = scanner.nextInt();
+                            contact = readContact(scanner);
+                            int x = scanner.nextInt();
+                            int y = scanner.nextInt();
                             //scanner.nextInt(); //pressure is currently not supported
-                            events[contact].action = MotionEvent.ACTION_MOVE;
+                            events[contact].lastX = x;
+                            events[contact].lastY = y;
+                            if (type.equals("m")) {
+                                events[contact].action = MotionEvent.ACTION_MOVE;
+                            } else {
+                                events[contact].action = (contact == 0) ? MotionEvent.ACTION_DOWN : MotionEvent.ACTION_POINTER_2_DOWN;
+                            }
+                            count++;
                             break;
                         case "w":
                             int delayMs = scanner.nextInt();
@@ -278,8 +286,10 @@ public class MinitouchAgent extends Thread {
                         default:
                             System.out.println("could not parse: " + cmd);
                     }
-                } catch (NoSuchElementException e) {
-                    System.out.println("could not parse: " + cmd);
+                } catch (RuntimeException e) {
+                    // A bad line must not end the thread: an uncaught exception here
+                    // kills the whole agent process, key and text input included.
+                    System.out.println("could not parse: " + cmd + " (" + e + ")");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
