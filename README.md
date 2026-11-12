@@ -167,8 +167,13 @@ While both sockets use the same format, neither is able to respond to all reques
 * `DO_TYPE`
 * `DO_WAKE`
 * `SET_ROTATION`
+* `AGENT_GET_CLIPBOARD`
 
-All other requests must go to the service. Furthermore, while all requests to the service require an ID (which must be unique within a reasonable time interval) and then receive a response with that ID, the agent currently does not provide any responses, and the ID is therefore not required.
+All other requests must go to the service. Furthermore, while all requests to the service require an ID (which must be unique within a reasonable time interval) and then receive a response with that ID, the agent only answers `AGENT_GET_CLIPBOARD`. The other agent requests get no response, and the ID is therefore not required for them.
+
+Since Android 10 only the default input method and the app that has focus may read the clipboard, so `GET_CLIPBOARD` sent to the service comes back without any text there. The agent runs as the shell user, which is still allowed to read it. Send `AGENT_GET_CLIPBOARD` with a `GetClipboardRequest` to the agent instead, and it replies with a `GetClipboardResponse`. Setting the clipboard is not restricted, `SET_CLIPBOARD` stays with the service.
+
+Only send a request to an agent that is known to handle it. Agents up to version 2.5.9 exit when they receive a request type they do not know. Check that the `wire.proto` shipped with the APK you installed defines the request type.
 
 The requests themselves are heavily wrapped. Quite honestly it's probably a bit over-engineered in that sense, and a bit of a pain to use. But it works, and you're able to receive replies and monitoring events at any time in any order, without having to care about waiting for the previous request to complete.
 

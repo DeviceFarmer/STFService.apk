@@ -37,6 +37,7 @@ enum MessageType {
     EVENT_PHONE_STATE = 16;
     EVENT_ROTATION = 17;
     EVENT_BROWSER_PACKAGE = 18;
+    AGENT_GET_CLIPBOARD = 33;
 }
 
 message Envelope {
@@ -329,3 +330,8 @@ message SetRotationRequest {
 
 message DoWakeRequest {
 }
+
+// AGENT_GET_CLIPBOARD takes a GetClipboardRequest and, unlike the other agent
+// requests, is answered: the agent sends back an Envelope with the same id and
+// type that carries a GetClipboardResponse. Since Android 10 the service is not
+// allowed to read the clipboard unless it has focus, the agent still is.
