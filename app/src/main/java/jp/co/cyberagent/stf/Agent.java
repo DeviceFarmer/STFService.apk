@@ -12,7 +12,12 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.Surface;
 
+import com.google.protobuf.CodedInputStream;
+import com.google.protobuf.InvalidProtocolBufferException;
+
+import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
 import java.util.Map;
@@ -239,12 +244,25 @@ public class Agent extends Thread {
             System.err.println("InputClient started");
 
             try {
-                while (!isInterrupted()) {
-                    Wire.Envelope envelope =
-                            Wire.Envelope.parseDelimitedFrom(clientSocket.getInputStream());
+                InputStream in = clientSocket.getInputStream();
 
-                    if (envelope == null) {
+                while (!isInterrupted()) {
+                    byte[] frame = readFrame(in);
+
+                    if (frame == null) {
                         break;
+                    }
+
+                    Wire.Envelope envelope;
+
+                    try {
+                        envelope = Wire.Envelope.parseFrom(frame);
+                    }
+                    catch (InvalidProtocolBufferException e) {
+                        // A request type this agent does not know cannot be read, because the
+                        // type is a required field. Skip the request and keep the connection.
+                        System.err.println("Ignoring a request that cannot be read; maybe its type is not known to this agent");
+                        continue;
                     }
 
                     switch (envelope.getType()) {
@@ -273,6 +291,35 @@ public class Agent extends Thread {
             }
 
             System.err.println("InputClient closing");
+        }
+
+        /**
+         * Reads one length-delimited message without parsing it, so that a message that cannot
+         * be parsed does not leave the stream in the middle of it.
+         *
+         * @return the message, or null at the end of the stream
+         */
+        private byte[] readFrame(InputStream in) throws IOException {
+            int firstByte = in.read();
+
+            if (firstByte == -1) {
+                return null;
+            }
+
+            byte[] frame = new byte[CodedInputStream.readRawVarint32(firstByte, in)];
+            int offset = 0;
+
+            while (offset < frame.length) {
+                int count = in.read(frame, offset, frame.length - offset);
+
+                if (count == -1) {
+                    throw new EOFException("Connection closed in the middle of a request");
+                }
+
+                offset += count;
+            }
+
+            return frame;
         }
 
         private void handleKeyEventRequest(Wire.Envelope envelope) throws IOException {
