@@ -81,7 +81,7 @@ public class ClipboardManagerWrapper {
      * optional tags, the remaining ints are ids whose default is 0, and a trailing boolean,
      * where a vendor has one, tells that the request comes from the user.
      */
-    private static Object[] callerArguments(Method method) {
+    static Object[] callerArguments(Method method) {
         Class<?>[] types = method.getParameterTypes();
         Object[] arguments = new Object[types.length];
         boolean packageSet = false;
