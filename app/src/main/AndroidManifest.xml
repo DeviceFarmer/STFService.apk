@@ -37,6 +37,7 @@
             android:value="3.0"/>
 
         <service android:name=".Service"
+            android:directBootAware="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="jp.co.cyberagent.stf.ACTION_START"/>
@@ -46,6 +47,7 @@
         </service>
 
         <activity android:name=".IdentityActivity"
+            android:directBootAware="true"
             android:exported="true"
             android:finishOnTaskLaunch="true"
             android:noHistory="true"
