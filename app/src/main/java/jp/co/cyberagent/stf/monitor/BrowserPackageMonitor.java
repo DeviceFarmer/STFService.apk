@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -33,6 +34,14 @@ public class BrowserPackageMonitor extends AbstractMonitor {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
+
+                if (Intent.ACTION_USER_UNLOCKED.equals(action)) {
+                    // Before the unlock only direct boot aware browsers can be found
+                    Log.i(TAG, "User was unlocked");
+                    report(writer, false);
+                    return;
+                }
+
                 String pkg = intent.getData().getEncodedSchemeSpecificPart();
 
                 if (Intent.ACTION_PACKAGE_ADDED.equals(action)) {
@@ -56,6 +65,11 @@ public class BrowserPackageMonitor extends AbstractMonitor {
         filter.addDataScheme("package");
 
         context.registerReceiver(receiver, filter);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            // The service may be started before the device is unlocked after a boot
+            context.registerReceiver(receiver, new IntentFilter(Intent.ACTION_USER_UNLOCKED));
+        }
 
         try {
             synchronized (this) {
