@@ -12,10 +12,8 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.Surface;
 
-import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +26,7 @@ import jp.co.cyberagent.stf.compat.PowerManagerWrapper;
 import jp.co.cyberagent.stf.compat.TelephonyManagerWrapper;
 import jp.co.cyberagent.stf.compat.WindowManagerWrapper;
 import jp.co.cyberagent.stf.proto.Wire;
+import jp.co.cyberagent.stf.util.FrameReader;
 import jp.co.cyberagent.stf.util.InternalApi;
 import jp.co.cyberagent.stf.util.ProcUtil;
 
@@ -151,9 +150,10 @@ public class Agent extends Thread {
         try {
             clipboardManager = new ClipboardManagerWrapper();
         }
-        catch (UnsupportedOperationException e) {
-            // Clipboard requests will be answered with a failure
-            System.err.println(e.getMessage());
+        catch (RuntimeException e) {
+            // Clipboard is optional and must not take the input handling down with it. Its
+            // requests will be answered with a failure
+            System.err.println("Clipboard is not available: " + e);
         }
 
         selectDevice();
@@ -247,7 +247,7 @@ public class Agent extends Thread {
                 InputStream in = clientSocket.getInputStream();
 
                 while (!isInterrupted()) {
-                    byte[] frame = readFrame(in);
+                    byte[] frame = FrameReader.readFrame(in);
 
                     if (frame == null) {
                         break;
@@ -291,35 +291,6 @@ public class Agent extends Thread {
             }
 
             System.err.println("InputClient closing");
-        }
-
-        /**
-         * Reads one length-delimited message without parsing it, so that a message that cannot
-         * be parsed does not leave the stream in the middle of it.
-         *
-         * @return the message, or null at the end of the stream
-         */
-        private byte[] readFrame(InputStream in) throws IOException {
-            int firstByte = in.read();
-
-            if (firstByte == -1) {
-                return null;
-            }
-
-            byte[] frame = new byte[CodedInputStream.readRawVarint32(firstByte, in)];
-            int offset = 0;
-
-            while (offset < frame.length) {
-                int count = in.read(frame, offset, frame.length - offset);
-
-                if (count == -1) {
-                    throw new EOFException("Connection closed in the middle of a request");
-                }
-
-                offset += count;
-            }
-
-            return frame;
         }
 
         private void handleKeyEventRequest(Wire.Envelope envelope) throws IOException {
