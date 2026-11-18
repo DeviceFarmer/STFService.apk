@@ -37,6 +37,8 @@ enum MessageType {
     EVENT_PHONE_STATE = 16;
     EVENT_ROTATION = 17;
     EVENT_BROWSER_PACKAGE = 18;
+    // Goes to the agent, the other clipboard requests go to the service.
+    AGENT_GET_CLIPBOARD = 33;
 }
 
 message Envelope {
@@ -130,6 +132,11 @@ message SetClipboardResponse {
     required bool success = 1;
 }
 
+// Sent to the service as GET_CLIPBOARD or to the agent as AGENT_GET_CLIPBOARD.
+// Both answer with a GetClipboardResponse in an Envelope that has the id and
+// the type of the request. Since Android 10 the service is not allowed to read
+// the clipboard unless it has focus and answers without a text. The agent still
+// is, and it is the only agent request that gets an answer.
 message GetClipboardRequest {
     required ClipboardType type = 1;
 }

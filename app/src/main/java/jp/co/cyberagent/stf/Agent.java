@@ -12,15 +12,21 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.Surface;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
 import java.util.Map;
 
+import jp.co.cyberagent.stf.compat.ClipboardManagerWrapper;
 import jp.co.cyberagent.stf.compat.InputManagerWrapper;
 import jp.co.cyberagent.stf.compat.PowerManagerWrapper;
 import jp.co.cyberagent.stf.compat.TelephonyManagerWrapper;
 import jp.co.cyberagent.stf.compat.WindowManagerWrapper;
 import jp.co.cyberagent.stf.proto.Wire;
+import jp.co.cyberagent.stf.util.FrameReader;
 import jp.co.cyberagent.stf.util.InternalApi;
 import jp.co.cyberagent.stf.util.ProcUtil;
 
@@ -28,6 +34,7 @@ public class Agent extends Thread {
     public static final String PROCESS_NAME = "stf.agent";
     public static final String SOCKET = "stfagent";
 
+    private ClipboardManagerWrapper clipboardManager;
     private InputManagerWrapper inputManager;
     private PowerManagerWrapper powerManager;
     private WindowManagerWrapper windowManager;
@@ -140,6 +147,15 @@ public class Agent extends Thread {
         inputManager = new InputManagerWrapper();
         windowManager = new WindowManagerWrapper();
 
+        try {
+            clipboardManager = new ClipboardManagerWrapper();
+        }
+        catch (RuntimeException e) {
+            // Clipboard is optional and must not take the input handling down with it. Its
+            // requests will be answered with a failure
+            System.err.println("Clipboard is not available: " + e);
+        }
+
         selectDevice();
         loadKeyCharacterMap();
         startServer();
@@ -228,12 +244,25 @@ public class Agent extends Thread {
             System.err.println("InputClient started");
 
             try {
-                while (!isInterrupted()) {
-                    Wire.Envelope envelope =
-                            Wire.Envelope.parseDelimitedFrom(clientSocket.getInputStream());
+                InputStream in = clientSocket.getInputStream();
 
-                    if (envelope == null) {
+                while (!isInterrupted()) {
+                    byte[] frame = FrameReader.readFrame(in);
+
+                    if (frame == null) {
                         break;
+                    }
+
+                    Wire.Envelope envelope;
+
+                    try {
+                        envelope = Wire.Envelope.parseFrom(frame);
+                    }
+                    catch (InvalidProtocolBufferException e) {
+                        // A request type this agent does not know cannot be read, because the
+                        // type is a required field. Skip the request and keep the connection.
+                        System.err.println("Ignoring a request that cannot be read; maybe its type is not known to this agent");
+                        continue;
                     }
 
                     switch (envelope.getType()) {
@@ -249,8 +278,11 @@ public class Agent extends Thread {
                         case SET_ROTATION:
                             handleSetRotationRequest(envelope);
                             break;
+                        case AGENT_GET_CLIPBOARD:
+                            handleGetClipboardRequest(envelope);
+                            break;
                         default:
-                            System.err.printf("Unknown request type %d; maybe it's a Service call?\n", envelope.getType());
+                            System.err.printf("Unknown request type %s; maybe it's a Service call?\n", envelope.getType());
                     }
                 }
             }
@@ -346,6 +378,41 @@ public class Agent extends Thread {
             if (!request.getLock()) {
                 thawRotation();
             }
+        }
+
+        private void handleGetClipboardRequest(Wire.Envelope envelope) throws IOException {
+            Wire.GetClipboardRequest request = Wire.GetClipboardRequest.parseFrom(envelope.getMessage());
+            Wire.GetClipboardResponse.Builder response = Wire.GetClipboardResponse.newBuilder()
+                    .setSuccess(false);
+
+            if (clipboardManager != null && request.getType() == Wire.ClipboardType.TEXT) {
+                try {
+                    CharSequence text = clipboardManager.getText();
+
+                    response.setSuccess(true).setType(Wire.ClipboardType.TEXT);
+
+                    if (text != null) {
+                        response.setText(text.toString());
+                    }
+                }
+                catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+                catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                catch (RuntimeException e) {
+                    // An unexpected signature must not take the input handling down with it
+                    e.printStackTrace();
+                }
+            }
+
+            Wire.Envelope.newBuilder()
+                    .setId(envelope.getId())
+                    .setType(envelope.getType())
+                    .setMessage(response.build().toByteString())
+                    .build()
+                    .writeDelimitedTo(clientSocket.getOutputStream());
         }
 
         private void keyDown(int keyCode, int metaState) {
