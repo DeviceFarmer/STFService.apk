@@ -25,8 +25,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 18
-        versionName "2.5.9"
+        versionCode 19
+        versionName "2.6.0"
         applicationId "jp.co.cyberagent.stf"
     }
 
