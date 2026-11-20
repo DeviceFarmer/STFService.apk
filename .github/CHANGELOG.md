@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.6.0
+
+<!-- Release notes generated using configuration in .github/release.yml at 86b70e5c3dbed08fc08498f0d57a77809c3c12b0 -->
+
+### What's Changed
+* Bump com.google.protobuf:protobuf-gradle-plugin from 0.10.0 to 0.10.1 by @dependabot[bot] in https://github.com/DeviceFarmer/STFService.apk/pull/201
+* Bump gradle-wrapper from 9.8.2 to 9.9.0 by @dependabot[bot] in https://github.com/DeviceFarmer/STFService.apk/pull/202
+* Bump gradle-wrapper from 9.9.0 to 9.9.1 by @dependabot[bot] in https://github.com/DeviceFarmer/STFService.apk/pull/203
+* Read the clipboard through the agent on Android 10 and later by @koral-- in https://github.com/DeviceFarmer/STFService.apk/pull/204
+* Let the service start before the device is unlocked by @koral-- in https://github.com/DeviceFarmer/STFService.apk/pull/205
+
+
+**Full Changelog**: https://github.com/DeviceFarmer/STFService.apk/compare/v2.5.9...v2.6.0
+
 ## 2.5.9
 
 <!-- Release notes generated using configuration in .github/release.yml at 35f39e3a9c4a65e81cc998d1a190f24bd98c6e9c -->
